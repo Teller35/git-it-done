@@ -3,6 +3,21 @@ var nameInputEl = document.querySelector("#username");
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
 
+var formSubmitHandler = function(event) {
+    event.preventDefault();
+    // get value from input element
+    var username = nameInputEl.value.trim();
+
+    if (username) {
+        getUserRepos(username);
+        repoContainerEl.textContent = "";
+        nameInputEl.value = "";
+    }
+    else {
+        alert("Please enter a GitHub username");
+    }
+}
+
 var getUserRepos = function(user) {
     // format the github api url
     var apiUrl = "https://api.github.com/users/" + user + "/repos";
@@ -15,27 +30,22 @@ var getUserRepos = function(user) {
         });
         }
         else {
-            alert("Error: " + response.statusText);
+            alert("Error: " + response.statusText);   
         }
+    })
+    .catch(function(error) {
+        // notice this 'catch()' getting chained onto the end of the '.then()' method
+        alert("Unable to connect to GitHub");
     });
-}
-
-var formSubmitHandler = function(event) {
-    event.preventDefault();
-    // get value from input element
-    var username = nameInputEl.value.trim();
-
-    if (username) {
-        getUserRepos(username);
-        nameInputEl.value = "";
-    }
-    else {
-        alert("Please enter a GitHub username");
-    }
-    console.log(event);
+    
 }
 
 var displayRepos = function(repos, searchTerm) {
+    // check if api returned any repos
+    if (repos.length === 0) {
+        reposContainerEl.textContent = "No repositories found.";
+        return;
+    }
     // clear old content
     repoContainerEl.textContent = "";
     repoSearchTerm.textContent = searchTerm;
@@ -73,8 +83,6 @@ var displayRepos = function(repos, searchTerm) {
         // append container to the dom
         repoContainerEl.appendChild(repoEl);
     }
-    console.log(repos);
-    console.log(searchTerm);
 }
 
 userFormEl.addEventListener("submit", formSubmitHandler);
